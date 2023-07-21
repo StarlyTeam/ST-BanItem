@@ -1,16 +1,24 @@
-package net.starly.boilerplate;
+package net.starly.banitem;
 
+import lombok.Getter;
+import net.starly.banitem.command.BanItemExecutor;
+import net.starly.banitem.context.MessageContent;
+import net.starly.banitem.listener.InventoryInteractListener;
+import net.starly.banitem.listener.ItemCraftListener;
+import net.starly.banitem.listener.ItemInteractListener;
+import net.starly.banitem.listener.ItemPickUpListener;
+import net.starly.banitem.repo.BanItemRepo;
 import net.starly.core.bstats.Metrics;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class BoilerPlateMain extends JavaPlugin {
+import java.util.Arrays;
 
-    private static BoilerPlateMain instance;
-    public static BoilerPlateMain getInstance() {
-        return instance;
-    }
+public class BanItem extends JavaPlugin {
 
+    @Getter
+    private static BanItem instance;
 
     @Override
     public void onEnable() {
@@ -26,23 +34,43 @@ public class BoilerPlateMain extends JavaPlugin {
         /* SETUP
          ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
         instance = this;
-        new Metrics(this, 12345); // TODO: 수정
+        new Metrics(this, 19034);
 
         /* CONFIG
          ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
-        // TODO: 수정
+        saveDefaultConfig();
+        MessageContent.getInstance().initialize(getConfig());
+
+        /* DATA
+         ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
+        BanItemRepo.getInstance().loadData();
 
         /* COMMAND
          ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
-        // TODO: 수정
+        getCommand("밴아이템").setExecutor(new BanItemExecutor());
+        getCommand("밴아이템").setTabCompleter(new BanItemExecutor());
 
         /* LISTENER
          ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
-        // TODO: 수정
+        registerListeners(
+                new InventoryInteractListener(),
+                new ItemCraftListener(),
+                new ItemPickUpListener(),
+                new ItemInteractListener()
+        );
     }
 
     private boolean isPluginEnabled(String name) {
         Plugin plugin = getServer().getPluginManager().getPlugin(name);
         return plugin != null && plugin.isEnabled();
+    }
+
+    private void registerListeners(Listener... listeners) {
+        Arrays.stream(listeners).forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
+    }
+
+    @Override
+    public void onDisable() {
+        BanItemRepo.getInstance().saveData();
     }
 }

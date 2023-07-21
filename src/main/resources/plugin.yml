@@ -1,9 +1,9 @@
-name: ST-BoilerPlate # TODO: 수정
-main: net.starly.boilerplate.BoilerPlateMain # TODO: 수정
+name: ST-BanItem
+main: net.starly.banitem.BanItem
 author: Starly Team
 website: http://starly.kr/
 
-description: BoilerPlate Plugin. # TODO: 수정
+description: BanItem Plugin
 
 softdepend:
   - ST-Core
@@ -12,3 +12,18 @@ version: 1.0
 api-version: 1.13
 
 commands:
+  밴아이템:
+    description: ban item command
+
+permissions:
+  starly.banitem.setting:
+    default: op
+  starly.banitem.check:
+    default: op
+  starly.banitem.reload:
+    default: op
+  starly.banitem.*:
+    children:
+      - starly.banitem.setting
+      - starly.banitem.check
+      - starly.banitem.reload
